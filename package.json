@@ -1,0 +1,23 @@
+{
+  "name": "iterators",
+  "version": "1.0.0",
+  "description": "An iterator library",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:dev": "tsc -p tsconfig.dev.json",
+    "build:test": "tsc -p tsconfig.test.json",
+    "test": "ts-node --project tsconfig.test.json"
+  },
+  "keywords": [
+    "iterator",
+    "iterators"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
