@@ -7,7 +7,9 @@
     "build": "tsc -p tsconfig.build.json",
     "build:dev": "tsc -p tsconfig.dev.json",
     "build:test": "tsc -p tsconfig.test.json",
-    "test": "ts-node --project tsconfig.test.json"
+    "test": "ts-node --project tsconfig.test.json",
+    "test:myIterator": "ts-node --project tsconfig.test.json tests/myIterator.test.ts",
+    "watch": "ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "keywords": [
     "iterator",

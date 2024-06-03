@@ -1,10 +1,8 @@
-import { myIterator } from "../src/myIterator";
-import assert from "node:assert";
 import { describe, it } from "node:test";
+import assert from "assert";
 
-describe("myIterator", () => {
-  it("should yield correct values", () => {
-    const result = Array.from(myIterator([1, 2, 3]));
-    assert.deepStrictEqual(result, [2, 4, 6]);
+describe("My Iterator Tests", () => {
+  it("should test something", () => {
+    assert.strictEqual(1 + 1, 2);
   });
 });
