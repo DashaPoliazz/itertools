@@ -1,8 +1,10 @@
 import createMapIterable from "./modifiers/createMapIterable";
 import sum from "./aggregators/sum";
+import Collectors from "./collector/Collectors";
 
 type MapFn<T, U> = (item: T) => U;
 
+// Определение класса IterableWrapper
 class IterableWrapper<T> {
   iterable: Iterable<T>;
   iterator: Iterator<T>;
@@ -34,9 +36,11 @@ class IterableWrapper<T> {
 
   // Aggregators
   sum(this: IterableWrapper<number>): number {
-    const out = sum(this.iterable);
-    return out;
+    const sumResult = sum(this.iterable);
+    return sumResult;
   }
+
+  collect(collectAs: Collectors) {}
 }
 
 export default IterableWrapper;

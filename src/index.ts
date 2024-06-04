@@ -33,3 +33,20 @@ import Iter from "./iter";
   const repeatFiveFiveTimes = Iter.RepeatN(1, 5);
   console.log("CTX", repeatFiveFiveTimes.sum());
 }
+// {
+//   const iterable1 = [1, 2, 3, 4, 5];
+//   const collectAsSet: Set<number> = intoIterable(iterable1).collect(); // expexted { 1, 2, 3, 4, 5 };
+
+//   const iterable2 = [6, 7, 8, 9, 10];
+//   const collectAsArray = intoIterable(iterable2).collect<Set<number>>(); // expected [6, 7, 8, 9, 10];
+// }
+
+{
+  function x<T>() {
+    return {} as T & (T extends { foo: number } ? { foo: 42 } : { foo: "42" });
+  }
+
+  const n: { foo: number } = x();
+  const s: { foo: string } = x();
+  console.log("N", n, "S", s);
+}
