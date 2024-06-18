@@ -5,6 +5,7 @@ import createForEachIterable from "./other/createForEachIterable";
 import createRevIterable from "./other/createRevIterable";
 import createSkipIterable from "./other/createSkipIterable";
 import createEnumerateIterable from "./modifiers/createEnumerateIterable";
+import createZipIterable from "./modifiers/createZipIterable";
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 
@@ -283,6 +284,36 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const skipIterable = createSkipIterable(iter, count);
     const iterableWrapper = IterableWrapper.new(skipIterable);
+    return iterableWrapper;
+  }
+
+  /**
+   * Zips the elements of the iterable with another iterable or iterator, yielding pairs of corresponding elements.
+   * Stops yielding values as soon as one of the iterators is fully consumed.
+   *
+   * @template U
+   * @param {Iterator<U>} other - The iterator or iterable to zip with.
+   * @returns {IterableWrapper<[T, U]>} - A new IterableWrapper instance containing pairs of corresponding elements.
+   *
+   * @example
+   * const collection1 = [1, 2, 3];
+   * const collection2 = ['a', 'b'];
+   *
+   * // Create an IterableWrapper for collection1
+   * const iterable1 = intoIterable(collection1);
+   *
+   * // Zip collection1 with collection2
+   * const zippedIterable = iterable1.zip(collection2[Symbol.iterator]());
+   *
+   * // Iterate over the zipped iterable
+   * for (const pair of zippedIterable) {
+   *   console.log(pair); // Output: [1, 'a'], [2, 'b']
+   * }
+   */
+  zip<U>(other: Iterator<U>): Iterable<[T, U]> {
+    const iter = this.iterator;
+    const zipIterable = createZipIterable(iter, other);
+    const iterableWrapper = IterableWrapper.new(zipIterable);
     return iterableWrapper;
   }
 }
