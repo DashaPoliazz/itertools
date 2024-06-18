@@ -6,6 +6,7 @@ import createRevIterable from "./other/createRevIterable";
 import createSkipIterable from "./other/createSkipIterable";
 import createEnumerateIterable from "./modifiers/createEnumerateIterable";
 import createZipIterable from "./modifiers/createZipIterable";
+import createZipAllIterable from "./modifiers/createZipAllIterable";
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 
@@ -314,6 +315,42 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const zipIterable = createZipIterable(iter, other);
     const iterableWrapper = IterableWrapper.new(zipIterable);
+    return iterableWrapper;
+  }
+
+  /**
+   * Zips the elements of the current iterable with elements from multiple other iterables,
+   * continuing until all iterables are consumed.
+   *
+   * @param {...Iterator<any>[]} iterables - Other iterables to zip with the current iterable.
+   * @returns {Iterable<any[]>} - An iterable producing arrays of zipped elements from all iterables.
+   *
+   * @template T
+   * @memberof IterableWrapper
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const baseIter = intoIterable(collection);
+   *
+   * // Define other iterables to zip with baseIter
+   * const otherIter1 = intoIterable(collection).map((x: number) => x + 1);
+   * const otherIter2 = intoIterable(collection).enumerate();
+   * const otherIter3 = intoIterable(collection).take(3);
+   *
+   * // Zip all iterables together
+   * const zippedIterable = baseIter.zipAll(otherIter1, otherIter2, otherIter3);
+   *
+   * // Convert to iterator and check each result
+   * const iterator = zippedIterable[Symbol.iterator]();
+   * console.log(iterator.next()); // Output: { done: false, value: [1, 2, [0, 1], 1] }
+   * console.log(iterator.next()); // Output: { done: false, value: [2, 3, [1, 2], 2] }
+   * console.log(iterator.next()); // Output: { done: false, value: [3, 4, [2, 3], 3] }
+   * console.log(iterator.next()); // Output: { done: true, value: undefined }
+   */
+  zipAll(...iterables: Iterator<any>[]): Iterable<any[]> {
+    const iter = this.iterator;
+    const zipAllIterable = createZipAllIterable(iter, ...iterables);
+    const iterableWrapper = IterableWrapper.new(zipAllIterable);
     return iterableWrapper;
   }
 }
