@@ -1,5 +1,5 @@
 import IterableWrapper from "./ItearbleWrapper";
-import repeatN from "./producers/createRepeatNIterable";
+import repeatN from "./producers/repeatN";
 
 class Iter {
   constructor() {}
