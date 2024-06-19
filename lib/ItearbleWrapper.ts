@@ -7,6 +7,8 @@ import createSkipIterable from "./other/createSkipIterable";
 import createEnumerateIterable from "./modifiers/createEnumerateIterable";
 import createZipIterable from "./modifiers/createZipIterable";
 import createZipAllIterable from "./modifiers/createZipAllIterable";
+import createCycleIterable from "./other/createCycleIterable";
+
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 
@@ -351,6 +353,45 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const zipAllIterable = createZipAllIterable(iter, ...iterables);
     const iterableWrapper = IterableWrapper.new(zipAllIterable);
+    return iterableWrapper;
+  }
+
+  /**
+   * Creates an iterable that cycles through the elements of the original iterable indefinitely.
+   *
+   * @returns {IterableWrapper<T>} An iterable wrapper that provides methods for iterating and chaining operations.
+   *
+   * @example
+   * // Example 1: Using `cycle` with `map` to double each element and then `take(6)` to limit the iteration.
+   * const collection = [1, 2, 3];
+   * const cycle = intoIterable(collection).cycle();
+   * const iter = cycle[Symbol.iterator]();
+   * console.log(iter.next()); // { done: false, value: 1 }
+   * console.log(iter.next()); // { done: false, value: 2 }
+   * console.log(iter.next()); // { done: false, value: 3 }
+   * console.log(iter.next()); // { done: false, value: 1 }
+   * console.log(iter.next()); // { done: false, value: 2 }
+   *
+   * // Example 2: Using 'cycle' with 'take' to take first 6 elements
+   * const collection = [1, 2, 3];
+   * const cycle = intoIterable(collection).cycle().take(6);
+   * const result = Array.from(cycle);
+   * console.log(result); // [ 1, 2, 3, 1, 2, 3 ]
+   *
+   * // Example 3: Using `cycle` with `filter` to keep only even numbers and then `take(6)` to limit the iteration.
+   * const collection = [1, 2, 3, 4, 5];
+   * const chained2 = intoIterable(collection2)
+   *  .cycle()
+   *  .filter((x) => x % 2 === 0)
+   *  .take(6);
+   *
+   * const result = Array.from(chained2);
+   * console.log(result); // [2, 4, 2, 4, 2, 4]
+   */
+  cycle() {
+    const iter = this.iterator;
+    const cycleIterable = createCycleIterable(iter);
+    const iterableWrapper = IterableWrapper.new(cycleIterable);
     return iterableWrapper;
   }
 }
