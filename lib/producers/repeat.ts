@@ -1,6 +1,6 @@
 import intoIterable from "../intoIter";
 
-function repeatN<T>(itemToRepeat: T, n: number): Iterable<T> {
+function repeat<T>(itemToRepeat: T, n: number): Iterable<T> {
   return {
     [Symbol.iterator]() {
       return {
@@ -36,4 +36,4 @@ function repeatN<T>(itemToRepeat: T, n: number): Iterable<T> {
  * }
  */
 export default <T>(itemToRepeat: T, n: number) =>
-  intoIterable(repeatN(itemToRepeat, n));
+  intoIterable(repeat(itemToRepeat, n));
