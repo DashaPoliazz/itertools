@@ -8,6 +8,7 @@ import createEnumerateIterable from "./modifiers/createEnumerateIterable";
 import createZipIterable from "./modifiers/createZipIterable";
 import createZipAllIterable from "./modifiers/createZipAllIterable";
 import createCycleIterable from "./other/createCycleIterable";
+import createFilterMapIterable from "./modifiers/createFilterMapIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -65,7 +66,7 @@ class IterableWrapper<T> {
    * Maps the elements of the iterable using the provided function.
    *
    * @template U
-   * @param {MapFn<T, U>} fn - The function to apply to each element.
+   * @param {MapFn<T, U>} transform - The function to apply to each element.
    * @returns {IterableWrapper<U>} - A new IterableWrapper instance containing the mapped elements.
    *
    * @example
@@ -88,9 +89,9 @@ class IterableWrapper<T> {
    * const result = [...iterable];
    * console.log(result); // Output: [2, 3, 4, 5, 6]
    */
-  map<U>(fn: MapFn<T, U>): IterableWrapper<U> {
+  map<U>(transform: MapFn<T, U>): IterableWrapper<U> {
     const iter = this.iterator;
-    const mapIterable = createMapIterable(iter, fn);
+    const mapIterable = createMapIterable(iter, transform);
     const iterableWrapper = IterableWrapper.new(mapIterable);
     return iterableWrapper;
   }
@@ -388,10 +389,21 @@ class IterableWrapper<T> {
    * const result = Array.from(chained2);
    * console.log(result); // [2, 4, 2, 4, 2, 4]
    */
-  cycle() {
+  cycle(): Iterable<T> {
     const iter = this.iterator;
     const cycleIterable = createCycleIterable(iter);
     const iterableWrapper = IterableWrapper.new(cycleIterable);
+    return iterableWrapper;
+  }
+
+  filterMap<U>(predicate: Predicate<T>, transform: MapFn<T, U>): Iterable<U> {
+    const iter = this.iterator;
+    const filterMapIterable = createFilterMapIterable(
+      iter,
+      predicate,
+      transform,
+    );
+    const iterableWrapper = IterableWrapper.new(filterMapIterable);
     return iterableWrapper;
   }
 }
