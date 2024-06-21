@@ -13,6 +13,10 @@ import createFilterMapIterable from "./modifiers/createFilterMapIterable";
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 
+import once from "../helpers/once";
+
+// import Peekable from "./other/Peekable";
+
 type MapFn<T, U> = (item: T) => U;
 type Predicate<T> = (item: T) => boolean;
 type ForEachCb<T> = (item: T) => void;
@@ -29,6 +33,9 @@ class IterableWrapper<T> {
    */
   iterable: Iterable<T>;
 
+  #arrayRepresentation: Array<T>;
+  #cursor: number;
+
   /**
    * The iterator derived from the iterable.
    * @type {Iterator<T>}
@@ -42,6 +49,9 @@ class IterableWrapper<T> {
   constructor(iterable: Iterable<T>) {
     this.iterable = iterable;
     this.iterator = iterable[Symbol.iterator]();
+
+    this.#arrayRepresentation = [];
+    this.#cursor = 0;
   }
 
   /**
@@ -59,7 +69,15 @@ class IterableWrapper<T> {
   }
 
   next() {
+    console.log("triggered");
+    this.#cursor++;
     return this.iterator.next();
+  }
+
+  #cacheIterableAsArray() {
+    const isArray = Array.isArray(this.iterable);
+    if (isArray) return (this.#arrayRepresentation = this.iterable as Array<T>);
+    this.#arrayRepresentation = Array.from(this.iterable);
   }
 
   /**
@@ -314,7 +332,7 @@ class IterableWrapper<T> {
    *   console.log(pair); // Output: [1, 'a'], [2, 'b']
    * }
    */
-  zip<U>(other: Iterator<U>): Iterable<[T, U]> {
+  zip<U>(other: Iterator<U>): IterableWrapper<[T, U]> {
     const iter = this.iterator;
     const zipIterable = createZipIterable(iter, other);
     const iterableWrapper = IterableWrapper.new(zipIterable);
@@ -350,7 +368,7 @@ class IterableWrapper<T> {
    * console.log(iterator.next()); // Output: { done: false, value: [3, 4, [2, 3], 3] }
    * console.log(iterator.next()); // Output: { done: true, value: undefined }
    */
-  zipAll(...iterables: Iterator<any>[]): Iterable<any[]> {
+  zipAll(...iterables: Iterator<any>[]): IterableWrapper<any[]> {
     const iter = this.iterator;
     const zipAllIterable = createZipAllIterable(iter, ...iterables);
     const iterableWrapper = IterableWrapper.new(zipAllIterable);
@@ -389,14 +407,56 @@ class IterableWrapper<T> {
    * const result = Array.from(chained2);
    * console.log(result); // [2, 4, 2, 4, 2, 4]
    */
-  cycle(): Iterable<T> {
+  cycle(): IterableWrapper<T> {
     const iter = this.iterator;
     const cycleIterable = createCycleIterable(iter);
     const iterableWrapper = IterableWrapper.new(cycleIterable);
     return iterableWrapper;
   }
 
-  filterMap<U>(predicate: Predicate<T>, transform: MapFn<T, U>): Iterable<U> {
+  /**
+   * Filters the elements of the iterable using the provided predicate function
+   * and maps the filtered elements using the provided transform function.
+   *
+   * @template U
+   * @param {Predicate<T>} predicate - The predicate function to apply to each element for filtering.
+   * @param {MapFn<T, U>} transform - The function to apply to each filtered element for mapping.
+   * @returns {Iterable<U>} - A new iterable instance containing the mapped elements.
+   *
+   * @example
+   * // Example 1: Filter even numbers and add one
+   * const collection1 = [1, 2, 3, 4, 5];
+   * const even = (x: number) => x % 2 === 0;
+   * const addOne = (x: number) => x + 1;
+   *
+   * const iterable1 = intoIterable(collection1);
+   * const result1 = iterable1.filterMap(even, addOne);
+   * console.log([...result1]); // Output: [3, 5]
+   *
+   * @example
+   * // Example 2: Filter odd numbers and square them
+   * const collection2 = [1, 2, 3, 4, 5];
+   * const odd = (x: number) => x % 2 !== 0;
+   * const square = (x: number) => x * x;
+   *
+   * const iterable2 = intoIterable(collection2);
+   * const result2 = iterable2.filterMap(odd, square);
+   * console.log([...result2]); // Output: [1, 9, 25]
+   *
+   * @example
+   * // Example 3: Filter strings containing 'a' and convert to uppercase
+   * const collection3 = ["apple", "banana", "cherry", "date"];
+   * const containsA = (x: string) => x.includes('a');
+   * const toUpperCase = (x: string) => x.toUpperCase();
+   *
+   * const iterable3 = intoIterable(collection3);
+   * const result3 = iterable3.filterMap(containsA, toUpperCase);
+   * console.log([...result3]); // Output: ["APPLE", "BANANA", "DATE"]
+   */
+  filterMap<U>(
+    predicate: Predicate<T>,
+    transform: MapFn<T, U>,
+  ): IterableWrapper<U> {
     const iter = this.iterator;
     const filterMapIterable = createFilterMapIterable(
       iter,
