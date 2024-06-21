@@ -9,6 +9,7 @@ import createZipIterable from "./modifiers/createZipIterable";
 import createZipAllIterable from "./modifiers/createZipAllIterable";
 import createCycleIterable from "./other/createCycleIterable";
 import createFilterMapIterable from "./modifiers/createFilterMapIterable";
+import createCharIterable from "./other/createCharIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -20,6 +21,7 @@ import once from "../helpers/once";
 type MapFn<T, U> = (item: T) => U;
 type Predicate<T> = (item: T) => boolean;
 type ForEachCb<T> = (item: T) => void;
+type IterableOfString<T> = Iterable<T extends string ? T : never>;
 
 /**
  * A wrapper class for iterables providing additional utility methods.
@@ -32,9 +34,6 @@ class IterableWrapper<T> {
    * @type {Iterable<T>}
    */
   iterable: Iterable<T>;
-
-  #arrayRepresentation: Array<T>;
-  #cursor: number;
 
   /**
    * The iterator derived from the iterable.
@@ -49,9 +48,6 @@ class IterableWrapper<T> {
   constructor(iterable: Iterable<T>) {
     this.iterable = iterable;
     this.iterator = iterable[Symbol.iterator]();
-
-    this.#arrayRepresentation = [];
-    this.#cursor = 0;
   }
 
   /**
@@ -69,15 +65,7 @@ class IterableWrapper<T> {
   }
 
   next() {
-    console.log("triggered");
-    this.#cursor++;
     return this.iterator.next();
-  }
-
-  #cacheIterableAsArray() {
-    const isArray = Array.isArray(this.iterable);
-    if (isArray) return (this.#arrayRepresentation = this.iterable as Array<T>);
-    this.#arrayRepresentation = Array.from(this.iterable);
   }
 
   /**
@@ -465,6 +453,37 @@ class IterableWrapper<T> {
     );
     const iterableWrapper = IterableWrapper.new(filterMapIterable);
     return iterableWrapper;
+  }
+
+  /**
+   * Extracts characters from each string element of the iterable.
+   *
+   * @returns {IterableWrapper<string>} - A new IterableWrapper instance with characters extracted.
+   *
+   * @example
+   * // Example 1: Using an array of strings
+   * const collection1 = ["apple", "banana", "cherry"];
+   * const iterable1 = IterableWrapper.new(collection1).chars();
+   * console.log([...iterable1]); // Output: ['a', 'p', 'p', 'l', 'e', 'b', 'a', 'n', 'a', 'n', 'a', 'c', 'h', 'e', 'r', 'r', 'y']
+   *
+   * @example
+   * // Example 2: Using a string
+   * const collection2 = "hello";
+   * const iterable2 = IterableWrapper.new(collection2).chars();
+   * console.log([...iterable2]); // Output: ['h', 'e', 'l', 'l', 'o']
+   */
+  chars(): IterableWrapper<string> {
+    // If the original iterable is an array or set of strings
+    if (Array.isArray(this.iterable) || this.iterable instanceof Set) {
+      // Flatten the array or set into an array of strings
+      const flatArray = Array.from(this.iterable).flatMap((item) =>
+        typeof item === "string" ? Array.from(item) : [],
+      );
+      return IterableWrapper.new(flatArray);
+    } else {
+      // Assume it's an iterable of strings
+      return IterableWrapper.new(this.iterable as IterableOfString<T>);
+    }
   }
 }
 
