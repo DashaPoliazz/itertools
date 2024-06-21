@@ -9,7 +9,8 @@ import createZipIterable from "./modifiers/createZipIterable";
 import createZipAllIterable from "./modifiers/createZipAllIterable";
 import createCycleIterable from "./other/createCycleIterable";
 import createFilterMapIterable from "./modifiers/createFilterMapIterable";
-import createCharIterable from "./other/createCharIterable";
+// import createCharIterable from "./other/createCharIterable";
+import createSplitIterable from "./modifiers/createSplitIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -484,6 +485,29 @@ class IterableWrapper<T> {
       // Assume it's an iterable of strings
       return IterableWrapper.new(this.iterable as IterableOfString<T>);
     }
+  }
+
+  split(pattern: string): IterableWrapper<string> {
+    if (typeof this.iterable === "string") {
+      const iter = this.iterator;
+      const splitIterable = createSplitIterable(
+        iter as Iterator<string>,
+        this.iterable,
+        pattern,
+      );
+      const iterableWrapper = IterableWrapper.new(splitIterable);
+      return iterableWrapper;
+    }
+
+    console.log("reached");
+    const stringifiedIterable = Array.from(this.iterable).map(String).join("");
+    return IterableWrapper.new(
+      createSplitIterable(
+        stringifiedIterable[Symbol.iterator](),
+        stringifiedIterable,
+        pattern,
+      ),
+    );
   }
 }
 
