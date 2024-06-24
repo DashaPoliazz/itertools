@@ -1,6 +1,3 @@
-// if the lenght of pattern is 0, then split it over each char
-// if the length of pattern is 1 (could be surrogat pair decoded char)
-
 function createSplitIterable(
   iter: Iterator<string>,
   text: string,
