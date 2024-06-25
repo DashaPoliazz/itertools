@@ -11,6 +11,7 @@ import createCycleIterable from "./other/createCycleIterable";
 import createFilterMapIterable from "./modifiers/createFilterMapIterable";
 // import createCharIterable from "./other/createCharIterable";
 import createSplitIterable from "./modifiers/createSplitIterable";
+import createAdjacentDifference from "./other/createAdjacentDifference";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -499,7 +500,6 @@ class IterableWrapper<T> {
       return iterableWrapper;
     }
 
-    console.log("reached");
     const stringifiedIterable = Array.from(this.iterable).map(String).join("");
     return IterableWrapper.new(
       createSplitIterable(
@@ -508,6 +508,13 @@ class IterableWrapper<T> {
         pattern,
       ),
     );
+  }
+
+  adjacentDifference(this: IterableWrapper<number>): IterableWrapper<number> {
+    const iter = this.iterator;
+    const adjacentDifferenceIterable = createAdjacentDifference(iter);
+    const iterableWrapper = IterableWrapper.new(adjacentDifferenceIterable);
+    return iterableWrapper;
   }
 }
 
