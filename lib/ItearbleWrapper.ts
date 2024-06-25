@@ -12,6 +12,7 @@ import createFilterMapIterable from "./modifiers/createFilterMapIterable";
 // import createCharIterable from "./other/createCharIterable";
 import createSplitIterable from "./modifiers/createSplitIterable";
 import createAdjacentDifference from "./other/createAdjacentDifference";
+import crateIsliceIterable from "./other/createIsliceIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -510,10 +511,59 @@ class IterableWrapper<T> {
     );
   }
 
+  /**
+   * Computes the adjacent differences of the elements in the collection.
+   * @this IterableWrapper<number>
+   * @returns {IterableWrapper<number>} An IterableWrapper containing the adjacent differences.
+   * @example
+   * // Example: Computes adjacent differences for a collection of positive numbers
+   * const collection1 = [1, 5, 8];
+   * const iterableWrapper1 = intoIterable(collection1);
+   * const differences1 = iterableWrapper1.adjacentDifference();
+   * // differences1 now contains [1, 4, 3]
+   *
+   */
   adjacentDifference(this: IterableWrapper<number>): IterableWrapper<number> {
     const iter = this.iterator;
     const adjacentDifferenceIterable = createAdjacentDifference(iter);
     const iterableWrapper = IterableWrapper.new(adjacentDifferenceIterable);
+    return iterableWrapper;
+  }
+
+  /**
+   * Returns a new iterable containing elements from `from` (inclusive) to `to` (exclusive).
+   *
+   * @this {IterableWrapper<T>} The current instance of IterableWrapper.
+   * @param {number} from The starting index (inclusive) or negative index from the end of the iterable.
+   * @param {number} to The ending index (exclusive) or negative index from the end of the iterable.
+   * @returns {IterableWrapper<T>} A new IterableWrapper instance representing the sliced elements.
+   * @template T
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+   * const iterableWrapper = intoIterable(collection);
+   * const sliced = iterableWrapper.islice(0, 5);
+   *
+   * console.log(sliced.next()); // { value: 1, done: false }
+   * console.log(sliced.next()); // { value: 2, done: false }
+   * console.log(sliced.next()); // { value: 3, done: false }
+   * console.log(sliced.next()); // { value: 4, done: false }
+   * console.log(sliced.next()); // { value: 5, done: false }
+   * console.log(sliced.next()); // { value: undefined, done: true }
+   *
+   * @example
+   * const collection2 = [1, 2, 3];
+   * const iterableWrapper2 = intoIterable(collection2);
+   * const sliced2 = iterableWrapper2.islice(1, 10);
+   *
+   * console.log(sliced2.next()); // { value: 2, done: false }
+   * console.log(sliced2.next()); // { value: 3, done: false }
+   * console.log(sliced2.next()); // { value: undefined, done: true }
+   */
+  islice(from: number, to: number): IterableWrapper<T> {
+    const iter = this.iterator;
+    const isliceIterable = crateIsliceIterable(iter, from, to);
+    const iterableWrapper = IterableWrapper.new(isliceIterable);
     return iterableWrapper;
   }
 }
