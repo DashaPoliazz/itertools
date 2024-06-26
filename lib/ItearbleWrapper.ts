@@ -13,6 +13,7 @@ import createFilterMapIterable from "./modifiers/createFilterMapIterable";
 import createSplitIterable from "./modifiers/createSplitIterable";
 import createAdjacentDifference from "./other/createAdjacentDifference";
 import crateIsliceIterable from "./other/createIsliceIterable";
+import createTupleMapIterable from "./modifiers/createTupleMapIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -565,6 +566,18 @@ class IterableWrapper<T> {
     const isliceIterable = crateIsliceIterable(iter, from, to);
     const iterableWrapper = IterableWrapper.new(isliceIterable);
     return iterableWrapper;
+  }
+
+  tupleMap<U>(
+    this: IterableWrapper<U[]>,
+    transform: (tuple: [U, U]) => [U, U],
+  ): IterableWrapper<[U, U]> {
+    const iter = this.iterator;
+    const tupleMapIterable = createTupleMapIterable(
+      iter as Iterator<[U, U]>,
+      transform,
+    );
+    return new IterableWrapper(tupleMapIterable);
   }
 }
 
