@@ -16,6 +16,7 @@ import crateIsliceIterable from "./other/createIsliceIterable";
 import createTupleMapIterable from "./modifiers/createTupleMapIterable";
 import createUniqueIterable from "./other/createUniqueIterable";
 import createSkipWhileIterable from "./other/createSkipWhileIterable";
+import createLinesIterable from "./other/createLinesIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -28,6 +29,7 @@ type MapFn<T, U> = (item: T) => U;
 type Predicate<T> = (item: T) => boolean;
 type ForEachCb<T> = (item: T) => void;
 type IterableOfString<T> = Iterable<T extends string ? T : never>;
+type Delimiters = "\n" | "\r\n" | "\r" | "\u2028" | "\u2029";
 
 /**
  * A wrapper class for iterables providing additional utility methods.
@@ -650,6 +652,33 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const skipWhileIterable = createSkipWhileIterable(iter, predicate);
     return new IterableWrapper(skipWhileIterable);
+  }
+
+  /**
+   * Returns an iterable wrapper that iterates over lines of text from the underlying iterator.
+   * Each line is trimmed of leading and trailing whitespace by default.
+   *
+   * @param {string} ["\n" | "\r\n" | "\r" | "\u2028" | "\u2029"] The delimiter used to separate lines.
+   * @returns {IterableWrapper<string>} An iterable wrapper object that provides access to trimmed lines.
+   * @example
+   * // Basic usage with default newline delimiter
+   * const text = "  line1  \n  line2  \n  ";
+   * const iterable = intoIterable(text).lines();
+   * const result = [...iterable]; // ['line1', 'line2']
+   *
+   * @example
+   * // Custom delimiter example (CRLF)
+   * const text = "line1\r\nline2\r\nline3\r\n";
+   * const iterable = intoIterable(text).lines("\r\n");
+   * const result = [...iterable]; // ['line1', 'line2', 'line3']
+   */
+  lines(
+    this: IterableWrapper<string>,
+    delimiter: Delimiters = "\n",
+  ): IterableWrapper<string> {
+    const iter = this.iterator;
+    const linesIterable = createLinesIterable(iter, delimiter);
+    return new IterableWrapper(linesIterable);
   }
 }
 
