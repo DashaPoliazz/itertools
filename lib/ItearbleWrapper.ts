@@ -14,6 +14,7 @@ import createSplitIterable from "./modifiers/createSplitIterable";
 import createAdjacentDifference from "./other/createAdjacentDifference";
 import crateIsliceIterable from "./other/createIsliceIterable";
 import createTupleMapIterable from "./modifiers/createTupleMapIterable";
+import createUniqueIterable from "./other/createUniqueIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -568,6 +569,25 @@ class IterableWrapper<T> {
     return iterableWrapper;
   }
 
+  /**
+   * Applies a given transformation function to each tuple (pair) in the iterable.
+   *
+   * @template U
+   * @param {IterableWrapper<[U, U]>} this - The iterable wrapper containing tuples.
+   * @param {(tuple: [U, U]) => [U, U]} transform - The transformation function to apply to each tuple.
+   * @returns {IterableWrapper<[U, U]>} A new IterableWrapper containing the transformed tuples.
+   *
+   * @example
+   * // Example 1: Add one to each element in the tuples
+   * const collection1 = new IterableWrapper([
+   *   [1, 2],
+   *   [3, 4],
+   *   [5, 6],
+   * ]);
+   * const addOne = (tuple) => [tuple[0] + 1, tuple[1] + 1];
+   * const result1 = collection1.tupleMap(addOne);
+   * console.log([...result1]); // [[2, 3], [4, 5], [6, 7]]
+   */
   tupleMap<U>(
     this: IterableWrapper<U[]>,
     transform: (tuple: [U, U]) => [U, U],
@@ -578,6 +598,30 @@ class IterableWrapper<T> {
       transform,
     );
     return new IterableWrapper(tupleMapIterable);
+  }
+
+  /**
+   * Wraps an iterator to yield only unique values.
+   *
+   * @returns {IterableWrapper<T>} A new IterableWrapper instance that yields unique values from the original iterator.
+   *
+   * @example
+   * // Create a collection with duplicate values
+   * const collection = [1, 2, 3, 1, 2, 3, 1, 2, 3];
+   *
+   * // Wrap the collection into an IterableWrapper
+   * const iterableWrapper = intoIterable(collection);
+   *
+   * // Get the unique iterator
+   * const uniqueIterable = iterableWrapper.unique();
+   *
+   * // Convert the unique iterator to an array and log it
+   * console.log([...uniqueIterable]); // Output: [1, 2, 3]
+   */
+  unique(): IterableWrapper<T> {
+    const iter = this.iterator;
+    const uniqueIterable = createUniqueIterable(iter);
+    return new IterableWrapper(uniqueIterable);
   }
 }
 
