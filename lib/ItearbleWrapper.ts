@@ -15,6 +15,7 @@ import createAdjacentDifference from "./other/createAdjacentDifference";
 import crateIsliceIterable from "./other/createIsliceIterable";
 import createTupleMapIterable from "./modifiers/createTupleMapIterable";
 import createUniqueIterable from "./other/createUniqueIterable";
+import createSkipWhileIterable from "./other/createSkipWhileIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -622,6 +623,33 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const uniqueIterable = createUniqueIterable(iter);
     return new IterableWrapper(uniqueIterable);
+  }
+
+  /**
+   * Skips elements in the iterable until the predicate returns false.
+   * Once the predicate returns false or the iterator ends, stops skipping elements.
+   * Returns a new IterableWrapper instance with the remaining elements.
+   *
+   * @param {Predicate<T>} predicate - The predicate function that determines whether to skip an element.
+   * @returns {IterableWrapper<T>} A new IterableWrapper instance containing the remaining elements after skipping.
+   *
+   * @example
+   * // Create a collection with numbers
+   * const collection = [1, 2, 3, 4, 5];
+   *
+   * // Wrap the collection into an IterableWrapper
+   * const iterableWrapper = intoIterable(collection);
+   *
+   * // Skip elements less than or equal to 2
+   * const resultIterable = iterableWrapper.skipWhile((n) => n <= 2);
+   *
+   * // Convert the result iterable to an array and log it
+   * console.log([...resultIterable]); // Output: [3, 4, 5]
+   */
+  skipWhile(predicate: Predicate<T>): IterableWrapper<T> {
+    const iter = this.iterator;
+    const skipWhileIterable = createSkipWhileIterable(iter, predicate);
+    return new IterableWrapper(skipWhileIterable);
   }
 }
 
