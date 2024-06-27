@@ -17,6 +17,7 @@ import createTupleMapIterable from "./modifiers/createTupleMapIterable";
 import createUniqueIterable from "./other/createUniqueIterable";
 import createSkipWhileIterable from "./other/createSkipWhileIterable";
 import createLinesIterable from "./other/createLinesIterable";
+import every from "./aggregators/every";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -695,6 +696,35 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const linesIterable = createLinesIterable(iter, delimiter);
     return new IterableWrapper(linesIterable);
+  }
+
+  /**
+   * Checks if every element in the iterable satisfies the provided predicate function.
+   *
+   * @template T The type of elements in the iterable.
+   * @param {Predicate<T>} predicate A function that tests each element in the iterable. Returns true if the element passes the test, false otherwise.
+   * @returns {boolean} true if all elements in the iterable satisfy the predicate, false otherwise.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const isGreaterThanZero = (item) => item > 0;
+   * const result = intoIterable(collection).every(isGreaterThanZero);
+   * console.log(result); // Output: true
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const isEven = (item) => item % 2 === 0;
+   * const result = intoIterable(collection).every(isEven);
+   * console.log(result); // Output: false
+   *
+   * @example
+   * const emptyCollection: number[] = [];
+   * const isGreaterThanZero = (item) => item > 0;
+   * const result = intoIterable(emptyCollection).every(isGreaterThanZero);
+   * console.log(result); // Output: true
+   */
+  every(predicate: Predicate<T>): boolean {
+    return every(this.iterable, predicate);
   }
 }
 
