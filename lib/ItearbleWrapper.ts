@@ -17,10 +17,11 @@ import createTupleMapIterable from "./modifiers/createTupleMapIterable";
 import createUniqueIterable from "./other/createUniqueIterable";
 import createSkipWhileIterable from "./other/createSkipWhileIterable";
 import createLinesIterable from "./other/createLinesIterable";
-import every from "./aggregators/every";
+import createFindIterable from "./other/createFindIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
+import every from "./aggregators/every";
 
 import once from "../helpers/once";
 
@@ -725,6 +726,37 @@ class IterableWrapper<T> {
    */
   every(predicate: Predicate<T>): boolean {
     return every(this.iterable, predicate);
+  }
+
+  /**
+   * Finds the first element in the iterable that satisfies the provided predicate function.
+   *
+   * @template T The type of elements in the iterable.
+   * @param {Predicate<T>} predicate A function that tests each element in the iterable. Returns true if the element passes the test, false otherwise.
+   * @returns {IterableWrapper<T>} An IterableWrapper containing the found element or undefined if no element satisfies the predicate.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const five = (item) => item === 5;
+   * const result = intoIterable(collection).find(five);
+   * console.log([...result]); // Output: [5]
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const greaterThanTen = (item) => item > 10;
+   * const result = intoIterable(collection).find(greaterThanTen);
+   * console.log([...result]); // Output: []
+   *
+   * @example
+   * const emptyCollection = [];
+   * const anyPredicate = (item) => true;
+   * const result = intoIterable(emptyCollection).find(anyPredicate);
+   * console.log([...result]); // Output: []
+   */
+  find(predicate: Predicate<T>): IterableWrapper<T> {
+    const iter = this.iterator;
+    const findIterable = createFindIterable(iter, predicate);
+    return new IterableWrapper(findIterable);
   }
 }
 
