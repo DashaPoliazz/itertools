@@ -18,6 +18,7 @@ import createUniqueIterable from "./other/createUniqueIterable";
 import createSkipWhileIterable from "./other/createSkipWhileIterable";
 import createLinesIterable from "./other/createLinesIterable";
 import createFindIterable from "./other/createFindIterable";
+import createFlatIterable from "./modifiers/createFlatIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -757,6 +758,39 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const findIterable = createFindIterable(iter, predicate);
     return new IterableWrapper(findIterable);
+  }
+
+  /**
+   * Flattens the nested structure of the iterable into a single-level iterable.
+   * Handles plain collections and nested collections of arbitrary depth.
+   *
+   * @template T The type of elements in the iterable.
+   * @returns {IterableWrapper<T>} An IterableWrapper containing the flattened elements.
+   *
+   * @example
+   * const collection = [1, 2, 3];
+   * const result = intoIterable(collection).flat();
+   * console.log([...result]); // Output: [1, 2, 3]
+   *
+   * @example
+   * const collection = [[1], 2, 3];
+   * const result = intoIterable(collection).flat();
+   * console.log([...result]); // Output: [1, 2, 3]
+   *
+   * @example
+   * const collection = [[[[[1]]]], 2, 3];
+   * const result = intoIterable(collection).flat();
+   * console.log([...result]); // Output: [1, 2, 3]
+   *
+   * @example
+   * const collection = [[[1], [2], [3, [4, [5, 6]]]]];
+   * const result = intoIterable(collection).flat();
+   * console.log([...result]); // Output: [1, 2, 3, 4, 5, 6]
+   */
+  flat(): IterableWrapper<T> {
+    const iter = this.iterator;
+    const flatIterable = createFlatIterable(iter);
+    return new IterableWrapper(flatIterable);
   }
 }
 
