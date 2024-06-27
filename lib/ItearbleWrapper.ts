@@ -480,7 +480,7 @@ class IterableWrapper<T> {
    * const iterable2 = IterableWrapper.new(collection2).chars();
    * console.log([...iterable2]); // Output: ['h', 'e', 'l', 'l', 'o']
    */
-  chars(): IterableWrapper<string> {
+  chars(this: IterableWrapper<string>): IterableWrapper<string> {
     // If the original iterable is an array or set of strings
     if (Array.isArray(this.iterable) || this.iterable instanceof Set) {
       // Flatten the array or set into an array of strings
@@ -494,26 +494,42 @@ class IterableWrapper<T> {
     }
   }
 
-  split(pattern: string): IterableWrapper<string> {
-    if (typeof this.iterable === "string") {
-      const iter = this.iterator;
-      const splitIterable = createSplitIterable(
-        iter as Iterator<string>,
-        this.iterable,
-        pattern,
-      );
-      const iterableWrapper = IterableWrapper.new(splitIterable);
-      return iterableWrapper;
-    }
-
-    const stringifiedIterable = Array.from(this.iterable).map(String).join("");
-    return IterableWrapper.new(
-      createSplitIterable(
-        stringifiedIterable[Symbol.iterator](),
-        stringifiedIterable,
-        pattern,
-      ),
-    );
+  /**
+   * Splits the string in the IterableWrapper using the specified pattern.
+   *
+   * The pattern can be a string or a regular expression. If a string is used,
+   * the string will be split at each occurrence of the pattern. If a regular
+   * expression is used, the string will be split at each match of the regular
+   * expression.
+   *
+   * @param {string | RegExp} pattern - The pattern to split the string by. This can be
+   * a string or a regular expression.
+   * @returns {IterableWrapper<string>} An IterableWrapper containing the parts of the
+   * string that were separated by the pattern.
+   *
+   * @example
+   * const wrapper = new IterableWrapper("apple,orange,banana");
+   * const result = wrapper.split(",");
+   * console.log([...result]); // Output: ["apple", "orange", "banana"]
+   *
+   * @example
+   * const wrapper = new IterableWrapper("one1two2three3four");
+   * const result = wrapper.split(/\d/);
+   * console.log([...result]); // Output: ["one", "two", "three", "four"]
+   *
+   * @example
+   * const wrapper = new IterableWrapper("some text | another part");
+   * const result = wrapper.split("|");
+   * console.log([...result]); // Output: ["some text ", " another part"]
+   */
+  split(
+    this: IterableWrapper<string>,
+    pattern: string | RegExp,
+  ): IterableWrapper<string> {
+    const iterable = this.iterable;
+    const splitIterable = createSplitIterable(iterable as string, pattern);
+    const iterableWrapper = IterableWrapper.new(splitIterable);
+    return iterableWrapper;
   }
 
   /**
