@@ -19,6 +19,7 @@ import createSkipWhileIterable from "./other/createSkipWhileIterable";
 import createLinesIterable from "./other/createLinesIterable";
 import createFindIterable from "./other/createFindIterable";
 import createFlatIterable from "./modifiers/createFlatIterable";
+import createIntersectionIterable from "./other/createIntersectionIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -790,6 +791,34 @@ class IterableWrapper<T> {
   flat(): IterableWrapper<T> {
     const iter = this.iterator;
     const flatIterable = createFlatIterable(iter);
+    return new IterableWrapper(flatIterable);
+  }
+
+  /**
+   * Creates an iterable that yields elements present in both the current iterable and the `other` iterable.
+   * If elements are objects or non-primitive types, their references are compared for intersection.
+   *
+   * @param {Iterable<T>} other The other iterable to find intersections with.
+   * @returns {IterableWrapper<T>} A new instance of `IterableWrapper` containing the intersection iterable.
+   * @template T The type of elements in the iterables.
+   *
+   * @example
+   * const collection1 = [1, 3, 5, 7];
+   * const collection2 = [1, 2, 3, 4, 5, 6, 7];
+   *
+   * const intersections = intoIterable(collection1).intersection(collection2);
+   * console.log([...intersections]); // [1, 3, 5, 7]
+   * @example
+   * const commonRef = { key: "value" };
+   * const collection1 = [1, "two", true, commonRef];
+   * const collection2 = ["two", 3, true, commonRef];
+   *
+   * const intersections = intoIterable(collection1).intersection(collection2);
+   * console.log([...intersections]); // ["two", true, commonRef]
+   */
+  intersection(other: Iterable<T>): IterableWrapper<T> {
+    const iter = this.iterator;
+    const flatIterable = createIntersectionIterable(iter, other);
     return new IterableWrapper(flatIterable);
   }
 }
