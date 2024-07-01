@@ -51,8 +51,3 @@ it("should handle intersections with different data types", () => {
 
   assert.deepEqual([...intersection], ["two", true, commonRef]);
 });
-
-const collection1 = [1, 3, 5, 7];
-const collection2 = [1, 2, 3, 4, 5, 6, 7];
-
-const intersections = intoIterable(collection1).intersection(collection2);

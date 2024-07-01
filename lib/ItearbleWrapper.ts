@@ -20,6 +20,7 @@ import createLinesIterable from "./other/createLinesIterable";
 import createFindIterable from "./other/createFindIterable";
 import createFlatIterable from "./modifiers/createFlatIterable";
 import createIntersectionIterable from "./other/createIntersectionIterable";
+import createUnionIterable from "./modifiers/createUnionIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -818,8 +819,31 @@ class IterableWrapper<T> {
    */
   intersection(other: Iterable<T>): IterableWrapper<T> {
     const iter = this.iterator;
-    const flatIterable = createIntersectionIterable(iter, other);
-    return new IterableWrapper(flatIterable);
+    const intersectionIterable = createIntersectionIterable(iter, other);
+    return new IterableWrapper(intersectionIterable);
+  }
+
+  /**
+   * Creates an iterable that yields elements from both the current iterable and the `other` iterable,
+   * combining them without duplicates. If elements are objects or non-primitive types, their references
+   * are compared for uniqueness.
+   *
+   * @param {Iterable<T>} other The other iterable to create a union with.
+   * @returns {IterableWrapper<T>} A new instance of `IterableWrapper` containing the union iterable.
+   * @template T The type of elements in the iterables.
+   *
+   * @example
+   * const collection1 = [1, 2, 3];
+   * const collection2 = [4, 2, 3, 4];
+   *
+   * const union = intoIterable(collection1).union(collection2);
+   * console.log([...union]); // [1, 2, 3, 4]
+   */
+  union(other: Iterable<T>): IterableWrapper<T> {
+    const iter = this.iterator;
+    const otherIter = other[Symbol.iterator]();
+    const unionIterable = createUnionIterable(iter, otherIter);
+    return new IterableWrapper(unionIterable);
   }
 }
 
