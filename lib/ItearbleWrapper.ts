@@ -22,6 +22,7 @@ import createFlatIterable from "./modifiers/createFlatIterable";
 import createIntersectionIterable from "./other/createIntersectionIterable";
 import createUnionIterable from "./modifiers/createUnionIterable";
 import createSymmetricDifference from "./other/createSymmetricDifference";
+import createNthIterable from "./other/createNthIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -866,6 +867,23 @@ class IterableWrapper<T> {
     const base = this.iterable;
     const symmetricDifferenceIterable = createSymmetricDifference(base, other);
     return new IterableWrapper(symmetricDifferenceIterable);
+  }
+
+  /**
+   * Creates an iterable that yields the nth element of the original iterable.
+   *
+   * @param {number} n - The index of the element to retrieve.
+   * @returns {IterableWrapper<T>} An IterableWrapper containing the nth element of the original iterable.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const nth = intoIterable(collection).nth(2);
+   * assert.deepStrictEqual([...nth], [3]); // Retrieves the element at index 2, which is 3
+   */
+  nth(n: number): IterableWrapper<T> {
+    const iter = this.iterator;
+    const nthIterable = createNthIterable(iter, n);
+    return new IterableWrapper(nthIterable);
   }
 }
 
