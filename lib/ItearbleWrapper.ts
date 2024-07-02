@@ -25,6 +25,7 @@ import createSymmetricDifference from "./other/createSymmetricDifference";
 import createNthIterable from "./other/createNthIterable";
 import createBatchedIterable from "./other/createBatchIterable";
 import createGroupByIterable from "./other/createGroupByIterable";
+import createPartition from "./aggregators/partition";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -943,6 +944,25 @@ class IterableWrapper<T> {
     const iterable = this.iterable;
     const groupByIterable = createGroupByIterable<T, K>(iterable, classifier);
     return new IterableWrapper(groupByIterable);
+  }
+
+  /**
+   * Partitions the elements of the iterable into two arrays based on the provided predicate function.
+   * @template T
+   * @param {Predicate<T>} predicate - Function that determines which array (true for first, false for second) an element belongs to.
+   * @returns {T[][]} An array containing two arrays: the first array contains elements that satisfy the predicate,
+   *                  and the second array contains elements that do not.
+   * @example
+   * // Example usage:
+   * const collection = [1, 2, 3];
+   * const [evens, odds] = intoIterable(collection).partition((n) => n % 2 === 0);
+   * assert.deepEqual(evens, [2]);
+   * assert.deepEqual(odds, [1, 3]);
+   */
+  partition(predicate: Predicate<T>): T[][] {
+    const iterable = this.iterable;
+    const divided = createPartition(iterable, predicate);
+    return divided;
   }
 }
 
