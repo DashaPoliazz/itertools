@@ -905,7 +905,7 @@ class IterableWrapper<T> {
    *   ]
    * );
    */
-  batched(n: number): IterableWrapper<T> {
+  batched(n: number): IterableWrapper<T[]> {
     const iter = this.iterator;
     const batchedIterable = createBatchedIterable(iter, n);
     return new IterableWrapper(batchedIterable);

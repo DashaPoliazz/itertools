@@ -1,4 +1,7 @@
-function createBatchIterable<T>(iterator: Iterator<T>, n: number): Iterable<T> {
+function createBatchIterable<T>(
+  iterator: Iterator<T>,
+  n: number,
+): Iterable<T[]> {
   return {
     [Symbol.iterator]() {
       let current = iterator.next();
@@ -12,7 +15,6 @@ function createBatchIterable<T>(iterator: Iterator<T>, n: number): Iterable<T> {
               pairs = [];
               return { done: false, value: out };
             }
-
             return { done: true, value: undefined };
           }
 
@@ -23,8 +25,7 @@ function createBatchIterable<T>(iterator: Iterator<T>, n: number): Iterable<T> {
               return { done: false, value: out };
             }
 
-            const value = current.value;
-            pairs.push(value);
+            pairs.push(current.value);
             current = iterator.next();
           }
 
