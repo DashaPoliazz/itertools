@@ -23,6 +23,7 @@ import createIntersectionIterable from "./other/createIntersectionIterable";
 import createUnionIterable from "./modifiers/createUnionIterable";
 import createSymmetricDifference from "./other/createSymmetricDifference";
 import createNthIterable from "./other/createNthIterable";
+import createBatchedIterable from "./other/createBatchIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -884,6 +885,30 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const nthIterable = createNthIterable(iter, n);
     return new IterableWrapper(nthIterable);
+  }
+
+  /**
+   * Creates an iterable that yields batches of the original iterable.
+   *
+   * @param {number} n - The size of each batch.
+   * @returns {IterableWrapper<T[]>} An IterableWrapper containing batches of the original iterable.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5, 6];
+   * const batched = intoIterable(collection).batched(2);
+   * assert.deepStrictEqual(
+   *   [...batched],
+   *   [
+   *     [1, 2],
+   *     [3, 4],
+   *     [5, 6],
+   *   ]
+   * );
+   */
+  batched(n: number): IterableWrapper<T> {
+    const iter = this.iterator;
+    const batchedIterable = createBatchedIterable(iter, n);
+    return new IterableWrapper(batchedIterable);
   }
 }
 
