@@ -24,6 +24,7 @@ import createUnionIterable from "./modifiers/createUnionIterable";
 import createSymmetricDifference from "./other/createSymmetricDifference";
 import createNthIterable from "./other/createNthIterable";
 import createBatchedIterable from "./other/createBatchIterable";
+import createGroupByIterable from "./other/createGroupByIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -909,6 +910,39 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const batchedIterable = createBatchedIterable(iter, n);
     return new IterableWrapper(batchedIterable);
+  }
+
+  /**
+   * Groups elements of the iterable based on the provided classifier function.
+   *
+   * @template T
+   * @template K
+   * @param {function(T): K} classifier - Function that classifies each element into a group key.
+   * @returns {IterableWrapper<{ key: K; items: T[] }>} An IterableWrapper containing grouped elements.
+   * @example
+   * const collection = [
+   *   "apricot", "banana", "blueberry", "apple", "cherry", "citrus"
+   * ];
+   * const byFirstLetter = (word) => word[0];
+   * const groupedByFirstChar = intoIterable(collection).groupBy(byFirstLetter);
+   * // groupedByFirstChar is now:
+   * // [
+   * //   { key: "a", items: ["apricot", "apple"] },
+   * //   { key: "b", items: ["banana", "blueberry"] },
+   * //   { key: "c", items: ["cherry", "citrus"] },
+   * // ]
+   * assert.deepEqual([...groupedByFirstChar], [
+   *   { key: "a", items: ["apricot", "apple"] },
+   *   { key: "b", items: ["banana", "blueberry"] },
+   *   { key: "c", items: ["cherry", "citrus"] },
+   * ]);
+   */
+  groupBy<K>(
+    classifier: (item: T) => K,
+  ): IterableWrapper<{ key: K; items: T[] }> {
+    const iterable = this.iterable;
+    const groupByIterable = createGroupByIterable<T, K>(iterable, classifier);
+    return new IterableWrapper(groupByIterable);
   }
 }
 
