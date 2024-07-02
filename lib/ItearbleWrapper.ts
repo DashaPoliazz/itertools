@@ -26,6 +26,7 @@ import createNthIterable from "./other/createNthIterable";
 import createBatchedIterable from "./other/createBatchIterable";
 import createGroupByIterable from "./other/createGroupByIterable";
 import createPartition from "./aggregators/partition";
+import reduce from "./aggregators/reduce";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -40,6 +41,7 @@ type Predicate<T> = (item: T) => boolean;
 type ForEachCb<T> = (item: T) => void;
 type IterableOfString<T> = Iterable<T extends string ? T : never>;
 type Delimiters = "\n" | "\r\n" | "\r" | "\u2028" | "\u2029";
+type Reducer<T, R> = (prevValue: R, currValue: T) => R;
 
 /**
  * A wrapper class for iterables providing additional utility methods.
@@ -963,6 +965,26 @@ class IterableWrapper<T> {
     const iterable = this.iterable;
     const divided = createPartition(iterable, predicate);
     return divided;
+  }
+
+  /**
+   * Reduces the elements of the iterable using the provided reducer function.
+   * @template R - The type of the reduced result.
+   * @param {Reducer<T, R>} reducer - Function that processes each element and accumulates a result.
+   * @param {R} initialValue - Initial value of the accumulator.
+   * @returns {R} The accumulated result after applying the reducer function to all elements.
+   *
+   * @example
+   * // Example usage:
+   * const collection = [1, 2, 3, 4];
+   * const productReduce = intoIterable(collection).reduce(
+   *   (acc, item) => acc * item,
+   *   1,
+   * );
+   * console.log(productReduce); // Output: 24 (1 * 2 * 3 * 4 = 24)
+   */
+  reduce<R>(reducer: Reducer<T, R>, initialValue: R): R {
+    return reduce(this.iterable, reducer, initialValue);
   }
 }
 
