@@ -21,6 +21,7 @@ import createFindIterable from "./other/createFindIterable";
 import createFlatIterable from "./modifiers/createFlatIterable";
 import createIntersectionIterable from "./other/createIntersectionIterable";
 import createUnionIterable from "./modifiers/createUnionIterable";
+import createSymmetricDifference from "./other/createSymmetricDifference";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -844,6 +845,27 @@ class IterableWrapper<T> {
     const otherIter = other[Symbol.iterator]();
     const unionIterable = createUnionIterable(iter, otherIter);
     return new IterableWrapper(unionIterable);
+  }
+
+  /**
+   * Computes the symmetric difference between the current iterable and another iterable.
+   * The symmetric difference of two sets is the set of elements which are in either of the sets
+   * but not in their intersection.
+   *
+   * @template T The type of elements in the iterables.
+   * @param {Iterable<T>} other The other iterable to compare with.
+   * @returns {IterableWrapper<T>} An IterableWrapper containing the symmetric difference of the two iterables.
+   *
+   * @example
+   * const collection1 = [1, 2, 3];
+   * const collection2 = [2, 3, 4];
+   * const diff = intoIterable(collection1).symmetricDifference(collection2);
+   * assert.deepStrictEqual([...diff], [1, 4]);
+   */
+  symmetricDifference(other: Iterable<T>): IterableWrapper<T> {
+    const base = this.iterable;
+    const symmetricDifferenceIterable = createSymmetricDifference(base, other);
+    return new IterableWrapper(symmetricDifferenceIterable);
   }
 }
 

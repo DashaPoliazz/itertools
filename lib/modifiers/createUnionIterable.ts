@@ -11,7 +11,10 @@ function createUnionIterable<T>(
       return {
         next() {
           if (current.done) {
-            if (!switched) current = other.next();
+            if (!switched) {
+              switched = true;
+              current = other.next();
+            }
           }
 
           while (!current.done) {
