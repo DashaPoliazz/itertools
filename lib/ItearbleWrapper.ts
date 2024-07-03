@@ -26,6 +26,7 @@ import createNthIterable from "./other/createNthIterable";
 import createBatchedIterable from "./other/createBatchIterable";
 import createGroupByIterable from "./other/createGroupByIterable";
 import createPartition from "./aggregators/partition";
+import createAlternatingIterable from "./aggregators/createAlternatingIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -1069,6 +1070,29 @@ class IterableWrapper<T> {
    */
   min(this: IterableWrapper<number>): number {
     return Math.min(...this.iterable);
+  }
+
+  /**
+   * Returns an iterable that alternates between elements of the current iterable and another iterable.
+   *
+   * @template K The type of elements in the other iterable.
+   * @param {Iterable<K>} other The other iterable to alternate with.
+   * @returns {IterableWrapper<T | K>} An IterableWrapper that alternates between elements of the current and other iterables.
+   *
+   * @example
+   * const collection1 = [1, 3, 5];
+   * const collection2 = [2, 4];
+   * const iterable = intoIterable(collection1).alternating(collection2);
+   * console.log([...iterable]); // Output: [1, 2, 3, 4, 5]
+   */
+  alternating<K>(other: Iterable<K>): IterableWrapper<T | K> {
+    const baseIter = this.iterator;
+    const otherIter = other[Symbol.iterator]();
+    const alternatingIterable = createAlternatingIterable<T, K>(
+      baseIter,
+      otherIter,
+    );
+    return new IterableWrapper(alternatingIterable);
   }
 }
 
