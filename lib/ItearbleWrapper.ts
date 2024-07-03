@@ -62,6 +62,9 @@ class IterableWrapper<T> {
    */
   iterator: Iterator<T>;
 
+  hooks: Function[];
+  accumulatedResults: T[];
+
   /**
    * Creates an instance of IterableWrapper.
    * @param {Iterable<T>} iterable - The iterable to wrap.
@@ -69,6 +72,8 @@ class IterableWrapper<T> {
   constructor(iterable: Iterable<T>) {
     this.iterable = iterable;
     this.iterator = iterable[Symbol.iterator]();
+    this.hooks = [];
+    this.accumulatedResults = [];
   }
 
   /**
@@ -86,9 +91,44 @@ class IterableWrapper<T> {
   }
 
   next() {
-    return this.iterator.next();
+    const next = this.iterator.next();
+    // Store value in the accumulatedResults before yield it
+    if (!next.done) {
+      this.accumulatedResults.push(next.value);
+    }
+    return next;
   }
 
+  /**
+   * WARNING: DO NOT USE THIS METHOD DIRECTLY. It is automatically called
+   * when the iteration completes. Calling it directly may lead to unexpected
+   * behavior.
+   *
+   * Handles the completion of the iteration.
+   *
+   * @param {T[]} value - The accumulated results of the iteration.
+   * @returns {IteratorResult<T[]>} - An iterator result indicating completion with accumulated results.
+   */
+  return(value: T[]) {
+    for (const hook of this.hooks) {
+      hook(value);
+    }
+
+    return { done: true, value };
+  }
+  /**
+   * Registers a completion hook function to be called when the iteration ends.
+   *
+   * NOTE: This method should only be called at the end of the chain of operations.
+   * Calling it elsewhere may not produce the expected results.
+   *
+   * @param {(...args: any[]) => any} cb - The callback function to execute on completion.
+   * @returns {IterableWrapper<T>} - Returns the current IterableWrapper instance for chaining.
+   */
+  onCompletion(cb: (...args: any[]) => any) {
+    this.hooks.push(() => cb(this.accumulatedResults));
+    return this;
+  }
   /**
    * Maps the elements of the iterable using the provided function.
    *
