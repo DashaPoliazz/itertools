@@ -27,12 +27,14 @@ import createBatchedIterable from "./other/createBatchIterable";
 import createGroupByIterable from "./other/createGroupByIterable";
 import createPartition from "./aggregators/partition";
 import createAlternatingIterable from "./aggregators/createAlternatingIterable";
+import createScanIterable from "./other/createScanIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 import every from "./aggregators/every";
 import reduce from "./aggregators/reduce";
 import includes from "./aggregators/includes";
+import last from "./aggregators/last";
 
 import once from "../helpers/once";
 
@@ -44,6 +46,7 @@ type ForEachCb<T> = (item: T) => void;
 type IterableOfString<T> = Iterable<T extends string ? T : never>;
 type Delimiters = "\n" | "\r\n" | "\r" | "\u2028" | "\u2029";
 type Reducer<T, R> = (prevValue: R, currValue: T) => R;
+type ScanClosure<T, S> = (stateRef: { state: S }, item: T) => S | null;
 
 /**
  * A wrapper class for iterables providing additional utility methods.
@@ -1093,6 +1096,60 @@ class IterableWrapper<T> {
       otherIter,
     );
     return new IterableWrapper(alternatingIterable);
+  }
+
+  /**
+   * Returns the last element of the iterable, or null if the iterable is empty.
+   *
+   * @returns {T | null} The last element of the iterable, or null if the iterable is empty.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4];
+   * const lastElement = intoIterable(collection).last();
+   * console.log(lastElement); // Output: 4
+   */
+  last(): T | null {
+    return last(this.iterator);
+  }
+
+  /**
+   * The scan takes two arguments: an initial value that
+   * seeds the internal state and a closure function.
+   * This closure function also takes two arguments:
+   * 1. Mutable reference to the internal state (called stateRef)
+   * 2. An element from the iterator.
+   *
+   * Here's how it works:
+   * - The stateRef is an object that contains the internal state.
+   *   The closure can modify this state to share information across iterations.
+   * - During iteration, the closure is applied to each element of the iterator.
+   *   The closure's return value, which can be either a new state or null, determines the behavior of the iteration.
+   * - If the closure returns a new state, the iteration continues, and this value is yielded.
+   * - If the closure returns null, the iteration ends.
+   *
+   * @template S
+   * @param {S} initialState - The initial state for the scan function.
+   * @param {ScanClosure<T, S>} f - The function to apply to each element and the current state.
+   * @returns {IterableWrapper<S>} - A new IterableWrapper containing the scanned elements.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4];
+   * const scanResult = intoIterable(collection).scan(1, (stateRef, item) => {
+   *   stateRef.state *= item;
+   *
+   *   if (stateRef.state > 6) {
+   *     return null;
+   *   }
+   *
+   *   return -stateRef.state;
+   * });
+   *
+   * console.log([...scanResult]); // Output: [-1, -2, -6]
+   */
+  scan<S>(initialState: S, f: ScanClosure<T, S>): IterableWrapper<S> {
+    const iter = this.iterator;
+    const scanIterable = createScanIterable<T, S>(iter, initialState, f);
+    return new IterableWrapper(scanIterable);
   }
 }
 
