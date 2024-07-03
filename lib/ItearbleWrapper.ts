@@ -1002,6 +1002,34 @@ class IterableWrapper<T> {
   includes(predicate: Predicate<T>): boolean {
     return includes(this.iterable, predicate);
   }
+
+  /**
+   * Returns the maximum element in the collection.
+   *
+   * @returns {number} - The maximum element in the collection.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const max = intoIterable(collection).max();
+   * console.log(max); // 5
+   */
+  max(this: IterableWrapper<number>): number {
+    return Math.max(...this.iterable);
+  }
+
+  /**
+   * Returns the minimum element in the collection.
+   *
+   * @returns {number} - The minimum element in the collection.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const min = intoIterable(collection).min();
+   * console.log(min); // 1
+   */
+  min(this: IterableWrapper<number>): number {
+    return Math.min(...this.iterable);
+  }
 }
 
 export default IterableWrapper;
