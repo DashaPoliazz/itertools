@@ -26,11 +26,12 @@ import createNthIterable from "./other/createNthIterable";
 import createBatchedIterable from "./other/createBatchIterable";
 import createGroupByIterable from "./other/createGroupByIterable";
 import createPartition from "./aggregators/partition";
-import reduce from "./aggregators/reduce";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
 import every from "./aggregators/every";
+import reduce from "./aggregators/reduce";
+import includes from "./aggregators/includes";
 
 import once from "../helpers/once";
 
@@ -985,6 +986,21 @@ class IterableWrapper<T> {
    */
   reduce<R>(reducer: Reducer<T, R>, initialValue: R): R {
     return reduce(this.iterable, reducer, initialValue);
+  }
+
+  /**
+   * Checks if the collection contains an element that satisfies the provided predicate.
+   *
+   * @param {function} predicate - The function to test each element of the collection.
+   * @returns {boolean} - Returns true if the predicate returns true for any element in the collection; otherwise, false.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5];
+   * const result = intoIterable(collection).includes((n) => n === 2);
+   * console.log(result); // true
+   */
+  includes(predicate: Predicate<T>): boolean {
+    return includes(this.iterable, predicate);
   }
 }
 
