@@ -28,6 +28,7 @@ import createGroupByIterable from "./other/createGroupByIterable";
 import createPartition from "./aggregators/partition";
 import createAlternatingIterable from "./aggregators/createAlternatingIterable";
 import createScanIterable from "./other/createScanIterable";
+import createStepByIterable from "./other/createStepByIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -1150,6 +1151,23 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const scanIterable = createScanIterable<T, S>(iter, initialState, f);
     return new IterableWrapper(scanIterable);
+  }
+
+  /**
+   * Returns a new iterable that yields every nth element from the original iterable.
+   *
+   * @param {number} n - The step size to determine which elements to yield.
+   * @returns {IterableWrapper<T>} A new IterableWrapper yielding every nth element.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+   * const evenElements = intoIterable(collection).stepBy(2);
+   * console.log([...evenElements]); // Output: [1, 3, 5, 7, 9]
+   */
+  stepBy(n: number): IterableWrapper<T> {
+    const iter = this.iterator;
+    const stepByIterable = createStepByIterable(iter, n);
+    return new IterableWrapper(stepByIterable);
   }
 }
 
