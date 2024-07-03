@@ -64,7 +64,7 @@ describe("IterableWrapper", () => {
   });
 
   it("should handle mixed types gracefully", () => {
-    const collection = [1, "apple", true, "banana", 42, "cherry"];
+    const collection: any[] = [1, "apple", true, "banana", 42, "cherry"];
     const chars = intoIterable(collection).chars();
 
     const result = [...chars];

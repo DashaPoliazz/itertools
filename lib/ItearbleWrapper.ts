@@ -29,6 +29,7 @@ import createPartition from "./aggregators/partition";
 import createAlternatingIterable from "./aggregators/createAlternatingIterable";
 import createScanIterable from "./other/createScanIterable";
 import createStepByIterable from "./other/createStepByIterable";
+import createChunkIterable from "./other/createChunksIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -1168,6 +1169,23 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const stepByIterable = createStepByIterable(iter, n);
     return new IterableWrapper(stepByIterable);
+  }
+
+  /**
+   * Splits the iterable into chunks of the specified size.
+   *
+   * @param {number} size - The size of each chunk.
+   * @returns {IterableWrapper<T[]>} A new IterableWrapper yielding chunks of the specified size.
+   *
+   * @example
+   * const collection = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+   * const chunked = intoIterable(collection).chunks(2);
+   * console.log([...chunked]); // Output: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]
+   */
+  chunks(size: number): IterableWrapper<T[]> {
+    const iter = this.iterator;
+    const chunkIterable = createChunkIterable(iter, size);
+    return new IterableWrapper(chunkIterable);
   }
 }
 
