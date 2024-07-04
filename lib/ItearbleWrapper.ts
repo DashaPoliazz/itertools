@@ -31,6 +31,8 @@ import createScanIterable from "./other/createScanIterable";
 import createStepByIterable from "./other/createStepByIterable";
 import createChunkIterable from "./other/createChunksIterable";
 import createIntersperseIterable from "./other/createIntersperseIterable";
+import createTuplesIterable from "./other/createTuplesIterable";
+import createMergeIterable from "./other/createMergeIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -1204,6 +1206,67 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const interspreseIterable = createIntersperseIterable(iter, element);
     return new IterableWrapper(interspreseIterable);
+  }
+
+  /**
+   * Splits the collection into tuples (pairs of elements).
+   * Each tuple is an array of two elements.
+   * If the collection has an odd number of elements, the last single element will be omitted.
+   *
+   * @returns {IterableWrapper<T[]>} An iterable wrapper containing tuples (arrays of two elements).
+   *
+   * @example
+   * const collection = intoIterable([1, 2, 3, 4]);
+   * const tuples = collection.tuples();
+   * console.log([...tuples]); // [[1, 2], [3, 4]]
+   *
+   * @example
+   * const collection = intoIterable([1, 2, 3, 4, 5]);
+   * const tuples = collection.tuples();
+   * console.log([...tuples]); // [[1, 2], [3, 4]]
+   * // Note: The element '5' is omitted since the length of the collection is odd.
+   */
+  tuples(): IterableWrapper<T[]> {
+    const iter = this.iterator;
+    const tuplesIterable = createTuplesIterable(iter);
+    return new IterableWrapper(tuplesIterable);
+  }
+
+  /**
+   * Merges two iterables into a single iterable, interleaving their elements based on
+   * their natural order or using a custom comparator function.
+   *
+   * @param {Iterable<T>} other - The iterable to merge with the current iterable.
+   * @param {(a: T, b: T) => number} [comparator] - Optional comparator function to determine
+   *   the order of merging. If provided:
+   *     - Negative result: `a` precedes `b`.
+   *     - Zero: `a` and `b` are considered equal.
+   *     - Positive result: `b` precedes `a`.
+   *   If not provided, elements are merged in their natural order.
+   * @returns {IterableWrapper<T>} - An instance of IterableWrapper containing the merged iterable.
+   *
+   * @example
+   * // Merge example without a comparator (natural order)
+   * const a = range(0, 11).stepBy(3);
+   * const b = range(0, 11).stepBy(5);
+   * const merged1 = intoIterable(a).merge(b);
+   * console.log([...merged1]); // Output: [0, 0, 3, 5, 6, 10, 9]
+   *
+   * // Merge example with a custom comparator
+   * const c = [{ id: 1 }, { id: 3 }, { id: 5 }];
+   * const d = [{ id: 2 }, { id: 4 }, { id: 6 }];
+   * const customComparator = (a, b) => a.id - b.id;
+   * const merged2 = intoIterable(c).merge(d, customComparator);
+   * console.log([...merged2]); // Output: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }]
+   */
+  merge(
+    other: Iterable<T>,
+    comparator?: (a: T, b: T) => number,
+  ): IterableWrapper<T> {
+    const baseIter = this.iterator;
+    const otherIter = other[Symbol.iterator]();
+    const mergeIterable = createMergeIterable(baseIter, otherIter, comparator);
+    return new IterableWrapper(mergeIterable);
   }
 }
 
