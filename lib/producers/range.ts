@@ -165,16 +165,18 @@ function rangeIterable(
   step: number = 1,
 ): Iterable<number | bigint | string> {
   if (typeof from === "number" && typeof to === "number") {
-    return intoIterable(rangeNumber(from, to, step));
+    return rangeNumber(from, to, step);
   } else if (typeof from === "bigint" && typeof to === "bigint") {
-    return intoIterable(rangeNumber(BigInt(from), BigInt(to), step));
+    return rangeNumber(BigInt(from), BigInt(to), step);
   } else if (typeof from === "string" && typeof to === "string") {
-    return intoIterable(rangeString(from, to, step));
+    return rangeString(from, to, step);
   } else {
     return {
-      [Symbol.iterator]() {
+      [Symbol.iterator](): Iterator<number | bigint | string> {
         return {
-          next: () => ({ done: true, value: undefined }),
+          next(): IteratorResult<number | bigint | string> {
+            return { done: true, value: undefined };
+          },
         };
       },
     };
