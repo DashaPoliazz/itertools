@@ -1,4 +1,5 @@
 import intoIterable from "../intoIter";
+import IterableWrapper from "../ItearbleWrapper";
 
 const rangeNumber = (
   from: number | bigint,
@@ -167,7 +168,7 @@ function rangeIterable(
   if (typeof from === "number" && typeof to === "number") {
     return rangeNumber(from, to, step);
   } else if (typeof from === "bigint" && typeof to === "bigint") {
-    return rangeNumber(BigInt(from), BigInt(to), step);
+    return rangeNumber(from, to, step);
   } else if (typeof from === "string" && typeof to === "string") {
     return rangeString(from, to, step);
   } else {
@@ -183,4 +184,10 @@ function rangeIterable(
   }
 }
 
-export default rangeIterable;
+export default function (
+  from: number | bigint | string,
+  to: number | bigint | string,
+  step: number = 1,
+): IterableWrapper<number | bigint | string> {
+  return intoIterable(rangeIterable(from, to, step));
+}

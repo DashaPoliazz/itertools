@@ -30,6 +30,7 @@ import createAlternatingIterable from "./aggregators/createAlternatingIterable";
 import createScanIterable from "./other/createScanIterable";
 import createStepByIterable from "./other/createStepByIterable";
 import createChunkIterable from "./other/createChunksIterable";
+import createIntersperseIterable from "./other/createIntersperseIterable";
 
 import sum from "./aggregators/sum";
 import count from "./aggregators/count";
@@ -1186,6 +1187,23 @@ class IterableWrapper<T> {
     const iter = this.iterator;
     const chunkIterable = createChunkIterable(iter, size);
     return new IterableWrapper(chunkIterable);
+  }
+
+  /**
+   * Inserts a specified element between each element of the iterable.
+   *
+   * @param {T} element - The element to intersperse between the elements of the iterable.
+   * @returns {IterableWrapper<T>} A new `IterableWrapper` with the specified element interspersed between each element of the original iterable.
+   *
+   * @example
+   * const collection = [0, 1, 2];
+   * const interspersed = intoIterable(collection).intersperse(8);
+   * console.log([...interspersed]); // [0, 8, 1, 8, 2]
+   */
+  intersperse(element: T): IterableWrapper<T> {
+    const iter = this.iterator;
+    const interspreseIterable = createIntersperseIterable(iter, element);
+    return new IterableWrapper(interspreseIterable);
   }
 }
 
